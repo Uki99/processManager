@@ -2,6 +2,7 @@
 
 #if INTERNAL
 
+// Writes a chunk of data to a provided memory location.
 void process::write(DWORD destination, LPVOID data, size_t size)
 {
     DWORD oldprotect;
@@ -10,6 +11,7 @@ void process::write(DWORD destination, LPVOID data, size_t size)
     VirtualProtect((LPVOID)destination, size, oldprotect, &oldprotect);
 }
 
+// Writes no-ops to the provided memory location with specified size. In x86/64 assembly opcode for NOP is 0x90
 void process::nop(DWORD destination, size_t size)
 {
     DWORD oldprotect;
@@ -18,6 +20,7 @@ void process::nop(DWORD destination, size_t size)
     VirtualProtect((LPVOID)destination, size, oldprotect, &oldprotect);
 }
 
+// Resolves multi-level pointers.
 DWORD process::traceOffsets(DWORD base, std::vector<DWORD> offsets)
 {
     DWORD result = base;
@@ -31,6 +34,7 @@ DWORD process::traceOffsets(DWORD base, std::vector<DWORD> offsets)
     return result;
 }
 
+// Allocated console and opens read and write streams for it. Avoid in final builds as anti-cheats can easily detect such operations.
 void process::showConsole(const char* title)
 {
     AllocConsole();
@@ -44,6 +48,7 @@ void process::showConsole(const char* title)
     printf("Successfully hooked\n");
 }
 
+// Closes the allocated console.
 void process::closeConsole(void)
 {
     FreeConsole();
@@ -53,6 +58,7 @@ void process::closeConsole(void)
 
 #elif EXTERNAL
 
+// Writes to the specified memory region.
 void process::writeEx(LPVOID destination, LPCVOID data, size_t size, HANDLE hProcess)
 {
     DWORD oldprotect;
@@ -61,11 +67,13 @@ void process::writeEx(LPVOID destination, LPCVOID data, size_t size, HANDLE hPro
     VirtualProtect(destination, size, oldprotect, &oldprotect);
 }
 
+// Reads a chunk of data from specified memory location.
 void process::readEx(DWORD target, LPVOID& container, size_t size, HANDLE hProcess)
 {
     ReadProcessMemory(hProcess, (LPCVOID)target, container, size, NULL);
 }
 
+// Writes no-ops to the provided memory location with specified size. In x86/64 assembly opcode for NOP is 0x90
 void process::nopEx(LPVOID destination, size_t size, HANDLE hProcess)
 {
     BYTE* nopArray = new BYTE[size];
@@ -76,6 +84,7 @@ void process::nopEx(LPVOID destination, size_t size, HANDLE hProcess)
     delete[] nopArray;
 }
 
+// Resolves multi-level pointers.
 uintptr_t process::traceOffsetsEx(uintptr_t base, std::vector<DWORD> offsets, HANDLE hProcess)
 {
     uintptr_t result = base;
@@ -89,6 +98,7 @@ uintptr_t process::traceOffsetsEx(uintptr_t base, std::vector<DWORD> offsets, HA
     return result;
 }
 
+// Needs to be called in order to gain handles to the process you are working on.
 bool process::hookEx(const wchar_t* window_name, const wchar_t* module_name, clientInfo& info)
 {
     HWND GameWindow = FindWindowW(NULL, window_name);
