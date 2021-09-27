@@ -48,9 +48,10 @@ void process::showConsole(const char* title)
 // Closes the allocated console.
 void process::closeConsole(void)
 {
-    FreeConsole();
-    fclose(stdout);
-    fclose(stdin);
+	fclose((FILE*)stdin);
+	fclose((FILE*)stdout);
+	FreeConsole();
+	PostMessage(GetConsoleWindow(), WM_CLOSE, 0, 0);
 }
 
 #elif EXTERNAL
