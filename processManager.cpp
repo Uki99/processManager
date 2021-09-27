@@ -38,11 +38,8 @@ DWORD process::traceOffsets(DWORD base, std::vector<DWORD> offsets)
 void process::showConsole(const char* title)
 {
     AllocConsole();
-
-    FILE* stream;
-
-    freopen_s(&stream, "CONOUT$", "w", stdout);
-    freopen_s(&stream, "CONIN$", "r", stdin);
+    freopen_s((FILE**)stdin, "CONIN$", "r", stdin);
+    freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
 
     SetConsoleTitle(title);
     printf("Successfully hooked\n");
